@@ -8,7 +8,6 @@ import 'package:renti_host/service/socket_service.dart';
 import 'package:renti_host/utils/app_colors.dart';
 import 'package:renti_host/utils/app_images.dart';
 import 'package:renti_host/utils/app_static_strings.dart';
-import 'package:renti_host/utils/device_utils.dart';
 import 'package:renti_host/view/widgets/appbar/custom_appbar.dart';
 import 'package:renti_host/view/widgets/popups/common_popup.dart';
 import 'package:renti_host/view/widgets/text/custom_text.dart';
@@ -27,17 +26,18 @@ class _MessageScreenState extends State<MessageScreen> {
 
   List<Chat> allchatList = [];
 
-  getAllChats()  async {
-
+  getAllChats() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     hostUid = prefs.getString(SharedPreferenceHelper.userIdKey).toString();
-
-   socketService.fetchAllChats(hostId:  hostUid, didFetchChats:  (list){
-     setState(() {
-       allchatList = list;
-     });
-   });
-
+    socketService.connectToSocket();
+    socketService.joinRoom(hostId: hostUid);
+    socketService.fetchAllChats(
+        hostId: hostUid,
+        didFetchChats: (list) {
+          setState(() {
+            allchatList = list;
+          });
+        });
   }
 
   // userMsg({required String hostUid, required String userUid}) {
@@ -57,10 +57,6 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-
-    socketService.connectToSocket();
-    socketService.joinRoom(hostId: hostUid);
-
     getAllChats();
 
     super.initState();

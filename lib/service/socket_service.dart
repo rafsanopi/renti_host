@@ -65,7 +65,6 @@ class SocketService {
       chatlist.addAll(messages);
 
       allmessageList = convertList(chatlist);
-
     });
   }
 
@@ -100,15 +99,6 @@ class SocketService {
       msglist.addAll(messages);
 
       allmessageList = convertList(chatlist);
-
-      // for (Message message in allmessageList) {
-      //   print('Message ID: ${message.msgId}');
-      //   print('Message Text: ${message.message}');
-      //   print('Chat: ${message.chatId}');
-      //   print('Sender: ${message.senderInfo}');
-      //   print('Created At: ${message.createdAt}');
-      //   print('---------------');
-      // }
     });
   }
 
@@ -124,16 +114,17 @@ class SocketService {
     return allchatList;
   }
 
-  fetchAllChats({required String hostId, required Function(List<Chat>) didFetchChats }) {
+  fetchAllChats(
+      {required String hostId, required Function(List<Chat>) didFetchChats}) {
     socket.emit('get-all-chats', {'uid': hostId});
 
     socket.on('all-chats', (chats) {
-      chatlist.addAll(chats);
+      print(chats);
+      // chatlist.addAll(chats);
 
-      List<Chat> allchatList = convertChatList(chatlist);
+      // List<Chat> allchatList = convertChatList(chatlist);
 
-      didFetchChats(allchatList);
-
+      // didFetchChats(allchatList);
     });
   }
 
@@ -158,7 +149,6 @@ class SocketService {
     socket.emit('leave-room', {'uid': hostId});
     socket.disconnect();
   }
-
 }
 
 class Chat {
@@ -171,7 +161,7 @@ class Chat {
   });
 
   factory Chat.fromMap(Map<dynamic, dynamic> data) {
-   var id = data['_id'];
+    var id = data['_id'];
     List<dynamic> participantsData = data['participants'];
 
     List<Participant> participants = participantsData
