@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:renti_host/utils/app_colors.dart';
 import 'package:renti_host/utils/app_static_strings.dart';
-import 'package:renti_host/view/screens/%20home/home_model/home_carlist_model.dart';
+import 'package:renti_host/view/screens/home/home_model/home_carlist_model.dart';
 import 'package:renti_host/view/screens/add_cars/add_car_screen/inner_widgets/car_image_scetion.dart';
 import 'package:renti_host/view/screens/car_details/inner_widgets/document_file_section.dart';
 import 'package:renti_host/view/screens/car_details/inner_widgets/popup_menu.dart';

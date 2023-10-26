@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:renti_host/utils/app_colors.dart';
 import 'package:renti_host/utils/app_icons.dart';
-import 'package:renti_host/view/screens/%20home/home_screen.dart';
+import 'package:renti_host/view/screens/home/home_screen.dart';
 import 'package:renti_host/view/screens/message/messages/messages_screen.dart';
 import 'package:renti_host/view/screens/profile/profile_screen/profile_screen.dart';
 import 'package:renti_host/view/screens/rent_request/user_request/user_request_screen.dart';

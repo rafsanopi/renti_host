@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:renti_host/core/global/api_response_model.dart';
 import 'package:renti_host/utils/app_utils.dart';
-import 'package:renti_host/view/screens/%20home/home_model/home_carlist_model.dart';
-import 'package:renti_host/view/screens/%20home/home_repo/home_carlist_repo.dart';
+import 'package:renti_host/view/screens/home/home_model/home_carlist_model.dart';
+import 'package:renti_host/view/screens/home/home_repo/home_carlist_repo.dart';
 
 class HomeCarListController extends GetxController {
   HomeCarListRepo homeCarListRepo;

@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:renti_host/utils/app_colors.dart';
 import 'package:renti_host/utils/app_static_strings.dart';
-import 'package:renti_host/view/screens/%20home/home_controller/home_carlist_controller.dart';
-import 'package:renti_host/view/screens/%20home/inner_widgets/home_car_list.dart';
+import 'package:renti_host/view/screens/home/home_controller/home_carlist_controller.dart';
+import 'package:renti_host/view/screens/home/inner_widgets/home_car_list.dart';
 import 'package:renti_host/view/widgets/appbar/custom_appbar.dart';
 import 'package:renti_host/view/widgets/back/custom_back.dart';
 

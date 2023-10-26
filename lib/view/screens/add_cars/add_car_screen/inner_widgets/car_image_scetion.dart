@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:renti_host/view/screens/%20home/home_model/home_carlist_model.dart';
+import 'package:renti_host/view/screens/home/home_model/home_carlist_model.dart';
 
 // ignore: must_be_immutable
 class CarImageSection extends StatelessWidget {

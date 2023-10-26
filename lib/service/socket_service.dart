@@ -4,7 +4,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../core/helper/shear_preference_helper.dart';
 
-class SocketService extends GetxController{
+class SocketService {
   late io.Socket socket;
 
   bool isLoading = false;
@@ -34,6 +34,7 @@ class SocketService extends GetxController{
     socket.emit('add-new-chat', {'chatInfo': userHostId, "uid": hostId});
 
     socket.on('new-chat', (chat) {
+      joinChat(chatId: chat["_id"]);
       print('New chat created: $chat');
     });
   }
@@ -51,10 +52,11 @@ class SocketService extends GetxController{
     chatlist = [];
     allmessageList = [];
 
-
     socket.emit('join-chat', {'uid': chatId});
 
     socket.on('all-messages', (messages) {
+      print(messages);
+
       chatlist.clear();
       allmessageList.clear();
 
@@ -62,14 +64,14 @@ class SocketService extends GetxController{
 
       allmessageList = convertList(chatlist);
 
-      for (Message message in allmessageList) {
-        print('Message ID: ${message.msgId}');
-        print('Message Text: ${message.message}');
-        print('Chat: ${message.chatId}');
-        print('Sender: ${message.senderInfo}');
-        print('Created At: ${message.createdAt}');
-        print('---------------');
-      }
+      // for (Message message in allmessageList) {
+      //   print('Message ID: ${message.msgId}');
+      //   print('Message Text: ${message.message}');
+      //   print('Chat: ${message.chatId}');
+      //   print('Sender: ${message.senderInfo}');
+      //   print('Created At: ${message.createdAt}');
+      //   print('---------------');
+      // }
     });
   }
 
@@ -105,14 +107,14 @@ class SocketService extends GetxController{
 
       allmessageList = convertList(chatlist);
 
-      for (Message message in allmessageList) {
-        print('Message ID: ${message.msgId}');
-        print('Message Text: ${message.message}');
-        print('Chat: ${message.chatId}');
-        print('Sender: ${message.senderInfo}');
-        print('Created At: ${message.createdAt}');
-        print('---------------');
-      }
+      // for (Message message in allmessageList) {
+      //   print('Message ID: ${message.msgId}');
+      //   print('Message Text: ${message.message}');
+      //   print('Chat: ${message.chatId}');
+      //   print('Sender: ${message.senderInfo}');
+      //   print('Created At: ${message.createdAt}');
+      //   print('---------------');
+      // }
     });
   }
 
@@ -125,12 +127,7 @@ class SocketService extends GetxController{
     return allchatList;
   }
 
-  Chat chat = Chat(id: "", participants: []);
   getAllChats({required String hostId}) {
-
-    isLoading = true;
-    update();
-
     socket.emit('get-all-chats', {'uid': hostId});
 
     socket.on('all-chats', (chats) {
@@ -145,9 +142,6 @@ class SocketService extends GetxController{
 
       // print('All chats: $chats');
     });
-
-    isLoading = false;
-    update();
   }
 
   void getNotification(String uid) {
@@ -171,22 +165,14 @@ class SocketService extends GetxController{
     socket.emit('leave-room', {'uid': hostId});
     socket.disconnect();
   }
+
   getChatList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? hostUid = prefs.getString(SharedPreferenceHelper.userIdKey);
 
-   connectToSocket();
-   joinRoom(hostId: hostUid.toString());
+    connectToSocket();
+    joinRoom(hostId: hostUid.toString());
     getAllChats(hostId: hostUid.toString());
-
-
-
-  }
-
-  @override
-  void onInit() {
-    getChatList();
-    super.onInit();
   }
 }
 

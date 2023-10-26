@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:renti_host/core/helper/shear_preference_helper.dart';
 import 'package:renti_host/service/socket_service.dart';
 import 'package:renti_host/utils/app_colors.dart';
 import 'package:renti_host/utils/app_icons.dart';
 import 'package:renti_host/utils/app_images.dart';
 import 'package:renti_host/utils/app_static_strings.dart';
-import 'package:renti_host/utils/device_utils.dart';
 import 'package:renti_host/view/widgets/appbar/custom_appbar.dart';
-import 'package:renti_host/view/widgets/container/custon_container.dart';
 import 'package:renti_host/view/widgets/image/custom_image.dart';
 import 'package:renti_host/view/widgets/text/custom_text.dart';
 import 'package:renti_host/view/widgets/textfield/custom_textfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InboxScreen extends StatefulWidget {
   const InboxScreen({super.key});
@@ -21,18 +21,52 @@ class InboxScreen extends StatefulWidget {
 }
 
 class _InboxScreenState extends State<InboxScreen> {
-  List<ChatMessage> messages = [];
-
   TextEditingController messageController = TextEditingController();
+  List<Message> messages = [];
+  SocketService socketService = SocketService();
+  String userId = Get.arguments[0];
+  String userName = Get.arguments[1];
+  String userImg = Get.arguments[2];
+
+  getMessage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String hostUid =
+        prefs.getString(SharedPreferenceHelper.userIdKey).toString();
+
+    socketService.connectToSocket();
+    socketService.joinRoom(hostId: hostUid);
+
+    socketService.addNewChat(userHostId: {
+      "participants": [userId, hostUid],
+    }, hostId: hostUid);
+    //socketService.joinChat(chatId: "6538fb41f7db461561d4dee4");
+    // socketService.addNewMessage(
+    //     message: "This is Host",
+    //     hostId: hostUid,
+    //     roomId: "6538fb41f7db461561d4dee4");
+
+    socketService.getAllChats(hostId: hostUid.toString());
+  }
+
+  @override
+  void initState() {
+    getMessage();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      top: true,
+      top: false,
+      bottom: false,
       child: Scaffold(
-        extendBody: true,
-        backgroundColor: AppColors.blueNormal,
         appBar: CustomAppBar(
+          appBarBgColor: AppColors.blueNormal,
           appBarContent: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,17 +81,17 @@ class _InboxScreenState extends State<InboxScreen> {
                         size: 18, color: AppColors.whiteLight),
                   ),
                   Container(
-                    height: 52,
-                    width: 52,
+                    height: 50,
+                    width: 50,
                     margin: const EdgeInsets.only(left: 8),
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: const CustomImage(
-                        imageSrc: AppImages.userImage,
-                        imageType: ImageType.png,
-                        size: 52),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            fit: BoxFit.cover, image: NetworkImage(userImg))),
                   ),
-                  const CustomText(
-                      text: AppStaticStrings.bessieCooper,
+                  CustomText(
+                      left: 10,
+                      text: userName,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                       color: AppColors.whiteLight)
@@ -67,49 +101,48 @@ class _InboxScreenState extends State<InboxScreen> {
             ],
           ),
         ),
-        body: CustomContainer(
-          radiusTopLeft: 16,
-          radiusTopRight: 16,
-          paddingVertical: 0,
-          paddingHorizontal: 0,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(top: 24, bottom: 100),
-            child: Column(
-              children: List.generate(
-                messages.length,
-                (index) => Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(4)),
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                  ),
-                  child: Align(
-                    alignment: (messages[index].messageType == "sender"
-                        ? Alignment.topRight
-                        : Alignment.topLeft),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      width: MediaQuery.of(context).size.width / 1.5,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: (messages[index].messageType == "sender"
-                            ? AppColors.blueNormal
-                            : AppColors.whiteNormalHover),
-                      ),
-                      child: CustomText(
-                          textAlign: TextAlign.start,
-                          text: messages[index].messageContent,
-                          color: messages[index].messageType == "sender"
-                              ? AppColors.whiteLight
-                              : AppColors.blackNormal),
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(top: 24, bottom: 24),
+          child: Column(
+            children:
+                List.generate(socketService.allmessageList.length, (index) {
+              //  Message msg = socketService.allmessageList[index];
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                ),
+                child: Align(
+                  alignment:
+                      (socketService.allmessageList[index].senderInfo[index] ==
+                              "sender"
+                          ? Alignment.topRight
+                          : Alignment.topLeft),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: (messages[index].messageType == "sender"
+                          ? AppColors.blueNormal
+                          : AppColors.whiteLight),
+                    ),
+                    child: CustomText(
+                      textAlign: TextAlign.start,
+                      text: messages[index].messageContent,
+                      color: messages[index].messageType == "sender"
+                          ? AppColors.whiteLight
+                          : AppColors.blackNormal,
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
         ),
         bottomNavigationBar: AnimatedPadding(
@@ -155,9 +188,7 @@ class _InboxScreenState extends State<InboxScreen> {
                 ),
                 const SizedBox(width: 16),
                 GestureDetector(
-                  onTap: () {
-                    // sendMessage();
-                  },
+                  onTap: () async {},
                   child:
                       const CustomImage(imageSrc: AppIcons.sendIcon, size: 24),
                 ),
@@ -170,9 +201,9 @@ class _InboxScreenState extends State<InboxScreen> {
   }
 }
 
-class ChatMessage {
-  String messageContent;
-  String messageType;
+class Message {
+  final String messageContent;
+  final String messageType; // "sender" or "receiver"
 
-  ChatMessage({required this.messageContent, required this.messageType});
+  Message({required this.messageContent, required this.messageType});
 }
