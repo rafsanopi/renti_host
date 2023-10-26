@@ -35,11 +35,12 @@ class _MessageScreenState extends State<MessageScreen> {
 
     hostUid = id.toString();
 
-    hostMsg();
-    setState(() {});
+    setState(() {
+      hostMsg();
+    });
   }
 
-  hostMsg() async {
+  hostMsg() {
     socketService.connectToSocket();
     socketService.joinRoom(hostId: hostUid);
 
@@ -152,138 +153,148 @@ class _MessageScreenState extends State<MessageScreen> {
               fontSize: 18,
               fontWeight: FontWeight.w600),
         ),
-        body: LayoutBuilder(
-          builder: (context, constraint) {
-            return SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                child: Column(
-                  children: List.generate(
-                    socketService.allchatList.length,
-                    (index) {
-                      Chat chat = socketService.allchatList[index];
-                      print(chat);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.toNamed(AppRoute.inboxScreen);
-                          },
-                          child: Slidable(
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              children: [
-                                SlidableAction(
-                                    onPressed: (v) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return CommonPopUp(
-                                              title: AppStaticStrings
-                                                  .deleteMessage,
-                                              onTapYes: () {},
-                                              onTapNo: () {});
+        body: GetBuilder<SocketService>(
+          builder: (controller) {
+            return controller.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 24),
+                    child: Column(
+                      children: List.generate(
+                        controller.allchatList.length,
+                        (index) {
+                          Chat chat = controller.allchatList[index];
+                          print(chat);
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.toNamed(AppRoute.inboxScreen);
+                              },
+                              child: Slidable(
+                                endActionPane: ActionPane(
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                        onPressed: (v) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return CommonPopUp(
+                                                  title: AppStaticStrings
+                                                      .deleteMessage,
+                                                  onTapYes: () {},
+                                                  onTapNo: () {});
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                    backgroundColor: AppColors.redNormal,
-                                    icon: CupertinoIcons.delete),
-                              ],
-                            ),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.all(16),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                        backgroundColor: AppColors.redNormal,
+                                        icon: CupertinoIcons.delete),
+                                  ],
                                 ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: AppColors.shadowColor,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 1),
-                                    spreadRadius: 0,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: ShapeDecoration(
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    shadows: const [
+                                      BoxShadow(
+                                        color: AppColors.shadowColor,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 1),
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 52,
-                                    width: 52,
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: NetworkImage(chat
-                                                .participants[index].image
-                                                .toString()))),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: 52,
+                                        width: 52,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: NetworkImage(chat
+                                                    .participants[index].image
+                                                    .toString()))),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            CustomText(
-                                                text: chat.participants[index]
-                                                    .fullName,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                CustomText(
+                                                    text: chat
+                                                        .participants[index]
+                                                        .fullName,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                       horizontal: 12,
                                                       vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: dataList[index]
-                                                            ["status"] ==
-                                                        "Reserved"
-                                                    ? AppColors.redLight
-                                                    : AppColors.greenLight,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: CustomText(
-                                                  text: dataList[index]
-                                                          ["status"]
-                                                      .toString(),
-                                                  fontSize: 10,
-                                                  color: dataList[index]
-                                                              ["status"] ==
-                                                          "Reserved"
-                                                      ? AppColors.redNormal
-                                                      : AppColors.greenNormal),
+                                                  decoration: BoxDecoration(
+                                                    color: dataList[index]
+                                                                ["status"] ==
+                                                            "Reserved"
+                                                        ? AppColors.redLight
+                                                        : AppColors.greenLight,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                  ),
+                                                  child: CustomText(
+                                                      text: dataList[index]
+                                                              ["status"]
+                                                          .toString(),
+                                                      fontSize: 10,
+                                                      color: dataList[index]
+                                                                  ["status"] ==
+                                                              "Reserved"
+                                                          ? AppColors.redNormal
+                                                          : AppColors
+                                                              .greenNormal),
+                                                ),
+                                              ],
+                                            ),
+                                            CustomText(
+                                              text: dataList[index]["document"]
+                                                  .toString(),
+                                              fontSize: 12,
+                                              color: AppColors.whiteDark,
+                                              textAlign: TextAlign.start,
+                                              top: 8,
                                             ),
                                           ],
                                         ),
-                                        CustomText(
-                                          text: dataList[index]["document"]
-                                              .toString(),
-                                          fontSize: 12,
-                                          color: AppColors.whiteDark,
-                                          textAlign: TextAlign.start,
-                                          top: 8,
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ));
+                          );
+                        },
+                      ),
+                    ));
           },
         ),
       ),

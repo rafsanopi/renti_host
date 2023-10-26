@@ -1,8 +1,13 @@
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-class SocketService {
+import '../core/helper/shear_preference_helper.dart';
+
+class SocketService extends GetxController{
   late io.Socket socket;
+
+  bool isLoading = false;
 
   void connectToSocket() {
     socket = io.io(
@@ -45,6 +50,7 @@ class SocketService {
   joinChat({required String chatId}) {
     chatlist = [];
     allmessageList = [];
+
 
     socket.emit('join-chat', {'uid': chatId});
 
@@ -120,9 +126,11 @@ class SocketService {
   }
 
   Chat chat = Chat(id: "", participants: []);
-  getAllChats({
-    required String hostId,
-  }) {
+  getAllChats({required String hostId}) {
+
+    isLoading = true;
+    update();
+
     socket.emit('get-all-chats', {'uid': hostId});
 
     socket.on('all-chats', (chats) {
@@ -137,6 +145,9 @@ class SocketService {
 
       // print('All chats: $chats');
     });
+
+    isLoading = false;
+    update();
   }
 
   void getNotification(String uid) {
@@ -159,6 +170,23 @@ class SocketService {
   void disconnect({required String hostId}) {
     socket.emit('leave-room', {'uid': hostId});
     socket.disconnect();
+  }
+  getChatList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? hostUid = prefs.getString(SharedPreferenceHelper.userIdKey);
+
+   connectToSocket();
+   joinRoom(hostId: hostUid.toString());
+    getAllChats(hostId: hostUid.toString());
+
+
+
+  }
+
+  @override
+  void onInit() {
+    getChatList();
+    super.onInit();
   }
 }
 
