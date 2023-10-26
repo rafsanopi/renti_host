@@ -45,7 +45,7 @@ class _InboxScreenState extends State<InboxScreen> {
     //     hostId: hostUid,
     //     roomId: "6538fb41f7db461561d4dee4");
 
-    socketService.getAllChats(hostId: hostUid.toString());
+   // socketService.fetchAllChats(hostId: hostUid.toString());
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -45,7 +47,7 @@ class SocketService {
 
 //Getting All the person whome I have Chatted with
 
-  List<Chat> allchatList = [];
+  // List<Chat> allchatList = [];
   List<dynamic> chatlist = [];
 
   joinChat({required String chatId}) {
@@ -64,14 +66,6 @@ class SocketService {
 
       allmessageList = convertList(chatlist);
 
-      // for (Message message in allmessageList) {
-      //   print('Message ID: ${message.msgId}');
-      //   print('Message Text: ${message.message}');
-      //   print('Chat: ${message.chatId}');
-      //   print('Sender: ${message.senderInfo}');
-      //   print('Created At: ${message.createdAt}');
-      //   print('---------------');
-      // }
     });
   }
 
@@ -119,6 +113,9 @@ class SocketService {
   }
 
   List<Chat> convertChatList(List<dynamic> dynamicList) {
+    List<Chat> allchatList = [];
+    print(jsonEncode(dynamicList));
+
     for (var item in dynamicList) {
       if (item is Map<dynamic, dynamic>) {
         allchatList.add(Chat.fromMap(item));
@@ -127,20 +124,16 @@ class SocketService {
     return allchatList;
   }
 
-  getAllChats({required String hostId}) {
+  fetchAllChats({required String hostId, required Function(List<Chat>) didFetchChats }) {
     socket.emit('get-all-chats', {'uid': hostId});
 
     socket.on('all-chats', (chats) {
       chatlist.addAll(chats);
 
-      allchatList = convertChatList(chatlist);
+      List<Chat> allchatList = convertChatList(chatlist);
 
-      for (Chat message in allchatList) {
-        print('Message ID: ${message.id}');
-        print('Message Text: ${message.participants[0].image}');
-      }
+      didFetchChats(allchatList);
 
-      // print('All chats: $chats');
     });
   }
 
@@ -166,14 +159,6 @@ class SocketService {
     socket.disconnect();
   }
 
-  getChatList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? hostUid = prefs.getString(SharedPreferenceHelper.userIdKey);
-
-    connectToSocket();
-    joinRoom(hostId: hostUid.toString());
-    getAllChats(hostId: hostUid.toString());
-  }
 }
 
 class Chat {
@@ -186,13 +171,15 @@ class Chat {
   });
 
   factory Chat.fromMap(Map<dynamic, dynamic> data) {
+   var id = data['_id'];
     List<dynamic> participantsData = data['participants'];
+
     List<Participant> participants = participantsData
         .map((participantData) => Participant.fromMap(participantData))
         .toList();
 
     return Chat(
-      id: data['_id'],
+      id: id,
       participants: participants,
     );
   }

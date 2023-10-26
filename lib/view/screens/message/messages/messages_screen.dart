@@ -25,34 +25,19 @@ class _MessageScreenState extends State<MessageScreen> {
   SocketService socketService = SocketService();
   String hostUid = "";
 
-  String userUid = "651c1438254d5546b335bd43";
-  getHostID() async {
+  List<Chat> allchatList = [];
+
+  getAllChats()  async {
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString(SharedPreferenceHelper.userIdKey);
+    hostUid = prefs.getString(SharedPreferenceHelper.userIdKey).toString();
 
-    hostUid = id.toString();
+   socketService.fetchAllChats(hostId:  hostUid, didFetchChats:  (list){
+     setState(() {
+       allchatList = list;
+     });
+   });
 
-    setState(() {
-      hostMsg();
-    });
-  }
-
-  hostMsg() {
-    socketService.connectToSocket();
-    socketService.joinRoom(hostId: hostUid);
-
-    // socketService.addNewChat(userHostId: {
-    //   "participants": [userUid, hostUid],
-    // }, hostId: hostUid);
-    // socketService.joinChat(chatId: "6538fb41f7db461561d4dee4");
-    // socketService.addNewMessage(
-    //     message: "This is Host",
-    //     hostId: hostUid,
-    //     roomId: "6538fb41f7db461561d4dee4");
-
-    socketService.getAllChats(hostId: hostUid);
-
-    setState(() {});
   }
 
   // userMsg({required String hostUid, required String userUid}) {
@@ -72,20 +57,18 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-    //
-    getHostID();
 
-    DeviceUtils.screenUtils();
-    //
+    socketService.connectToSocket();
+    socketService.joinRoom(hostId: hostUid);
 
-    // userMsg(hostUid: hostUid, userUid: userUid);
+    getAllChats();
 
     super.initState();
   }
 
   @override
   void dispose() {
-    socketService.disconnect(hostId: "65156b821ae339b4d6643ac7");
+    socketService.disconnect(hostId: hostUid);
     super.dispose();
   }
 
@@ -113,9 +96,9 @@ class _MessageScreenState extends State<MessageScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: Column(
               children: List.generate(
-                socketService.allchatList.length,
+                allchatList.length,
                 (index) {
-                  Chat chat = socketService.allchatList[index];
+                  Chat chat = allchatList[index];
                   print(chat);
 
                   return Padding(
