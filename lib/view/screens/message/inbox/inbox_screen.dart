@@ -38,13 +38,11 @@ class _InboxScreenState extends State<InboxScreen> {
     socketService.addNewChat(userHostId: {
       "participants": [userId, hostUid],
     }, hostId: hostUid);
-    //socketService.joinChat(chatId: "6538fb41f7db461561d4dee4");
+    //socketService.joinChat(chatId: "653bac307b772dfb360c9d5f");
     // socketService.addNewMessage(
     //     message: "This is Host",
     //     hostId: hostUid,
-    //     roomId: "6538fb41f7db461561d4dee4");
-
-    // socketService.fetchAllChats(hostId: hostUid.toString());
+    //     roomId: "653bac307b772dfb360c9d5f");
   }
 
   @override

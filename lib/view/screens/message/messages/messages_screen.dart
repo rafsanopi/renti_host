@@ -27,10 +27,15 @@ class _MessageScreenState extends State<MessageScreen> {
   List<Chat> allchatList = [];
 
   getAllChats() async {
+    //  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   controller.loadCarDetailsData(carId);
+    // });
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     hostUid = prefs.getString(SharedPreferenceHelper.userIdKey).toString();
     socketService.connectToSocket();
     socketService.joinRoom(hostId: hostUid);
+    //  socketService.addNewChat(hostId: hostUid, userHostId: {});
     socketService.fetchAllChats(
         hostId: hostUid,
         didFetchChats: (list) {
@@ -57,16 +62,18 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-    getAllChats();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getAllChats();
+    });
 
     super.initState();
   }
 
-  @override
-  void dispose() {
-    socketService.disconnect(hostId: hostUid);
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   socketService.disconnect(hostId: hostUid);
+  //   super.dispose();
+  // }
 
   final List<Map<String, String>> dataList = [
     {

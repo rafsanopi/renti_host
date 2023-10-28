@@ -1,10 +1,5 @@
 import 'dart:convert';
-
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-
-import '../core/helper/shear_preference_helper.dart';
 
 class SocketService {
   late io.Socket socket;
@@ -46,25 +41,26 @@ class SocketService {
   List<Message> allmessageList = [];
 
 //Getting All the person whome I have Chatted with
+  List<dynamic> personalmsg = [];
+  List<Message> personalmsgList = [];
 
   // List<Chat> allchatList = [];
   List<dynamic> chatlist = [];
 
   joinChat({required String chatId}) {
-    chatlist = [];
-    allmessageList = [];
+    personalmsg.clear();
+    personalmsgList.clear();
 
     socket.emit('join-chat', {'uid': chatId});
 
     socket.on('all-messages', (messages) {
-      print(messages);
+      personalmsg.addAll(messages);
 
-      chatlist.clear();
-      allmessageList.clear();
+      personalmsgList = convertList(personalmsg);
 
-      chatlist.addAll(messages);
-
-      allmessageList = convertList(chatlist);
+      for (Message msg in personalmsgList) {
+        print("This is the Message ${msg.message}");
+      }
     });
   }
 
@@ -119,12 +115,14 @@ class SocketService {
     socket.emit('get-all-chats', {'uid': hostId});
 
     socket.on('all-chats', (chats) {
-      print(chats);
-      // chatlist.addAll(chats);
+      if (chats != null) {
+        chatlist.addAll(chats);
 
-      // List<Chat> allchatList = convertChatList(chatlist);
+        List<Chat> allchatList = convertChatList(chatlist);
 
-      // didFetchChats(allchatList);
+        didFetchChats(allchatList);
+      }
+      // print(chats);
     });
   }
 
